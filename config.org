@@ -1,0 +1,337 @@
+#+TITLE: Emacs config
+#+AUTHOR: Muhannad Alrusayni (Aka 0x3uh4224d)
+#+PROPERTY: :tangle
+
+This is my Emacs configration file.
+
+* Emacs behavior
+  I manipulate some Emacs behavior to backup files and save-place and other things.
+** Save places
+   Tell Emacs to remember last corusr for files that I have visit.
+   #+BEGIN_SRC emacs-lisp
+     (save-place-mode t)
+   #+END_SRC
+** Backup files
+   emacs by default create backup files wnd with `~` character in the same folder for the file, and 
+   thats make things a bit missy, so I will keep these backup files in separate folder.
+   #+BEGIN_SRC emacs-lisp
+     (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
+   #+END_SRC
+* Package sources
+  add MELPA and Org package archives if theiy are not added
+  #+BEGIN_SRC emacs-lisp
+      (unless (assoc-default "melpa" package-archives)
+        (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
+      (unless (assoc-default "org" package-archives)
+        (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t))
+  #+END_SRC
+* use-package
+  I use `use-package` to install and config other packages, so I will install it if
+  it's not already installed.
+** installtion
+   this will install use-package if it's not installed
+   #+BEGIN_SRC emacs-lisp
+     (unless (package-installed-p 'use-package)
+       (package-refresh-contents)
+       (package-install 'use-package))
+   #+END_SRC
+** configration
+   * let `use-package` be verbose and log messages to *Messages* buffer
+   #+BEGIN_SRC emacs-lisp
+     (eval-when-compile
+       (require 'use-package))
+     (setq use-package-verbose t)
+   #+END_SRC
+* My functions
+  here are my functions that I use in sevral places
+  #+BEGIN_SRC emacs-lisp
+    ;; get user name from git
+    (defun git-user-name ()
+      (call-process "git" nil t nil "config" "user.name")
+      (delete-char -1))
+
+    ;; get user name function that can be used inside yasnippet buffers
+    (defun yas-git-user-name ()
+      (with-temp-buffer
+        (git-user-name)
+        (buffer-string)))
+
+    ;; get user email from git
+    (defun git-user-email ()
+      (call-process "git" nil t nil "config" "user.email")
+      (delete-char -1))
+
+    ;; get user name function that can be used inside yasnippet buffers
+    (defun yas-git-user-email ()
+      (with-temp-buffer
+        (git-user-email)
+        (buffer-string)))
+
+    ;; get current-file name
+    (defun current-file ()
+      (file-name-nondirectory (buffer-file-name (current-buffer))))
+  #+END_SRC
+* UI
+  This section contains configrations that realted to UI such as fonts, themes and other things
+** Font
+   I'll be using `Monospace` fmaily fonts since they have almost fixed char size for Arabic 
+   characters and I need that to have good support with Org tables.
+   Also resizeing the font a bit bigger.
+   #+BEGIN_SRC emacs-lisp
+     (set-face-attribute 'default nil :family "Monospace" :height 140)
+   #+END_SRC
+** Theme
+   I'll be using two themes, dark and light theme
+   TODO: change theme automaticly depend on time of day
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package alect-themes
+     ;;   :ensure t
+     ;;   :config
+     ;;   (load-theme 'alect-dark t))
+
+     (use-package dracula-theme
+       :ensure t
+       :config
+       (load-theme 'dracula t))
+   #+END_SRC
+** Layout
+   I need clean UI for programming so I'll hide menu-bar, tool-bar and scroll-bar and I'll use 
+   golden-ratio to manage the frames size and I'll use hl-line to highlight current line.
+   #+BEGIN_SRC emacs-lisp
+     (menu-bar-mode -1)
+     (tool-bar-mode -1)
+     (scroll-bar-mode -1)
+
+     (use-package golden-ratio
+       :ensure t
+       :config
+       (golden-ratio-mode 1))
+   #+END_SRC
+** Highlight current line
+   this section to highlight current line
+   #+BEGIN_SRC emacs-lisp
+     (global-hl-line-mode 1)
+   #+END_SRC
+* Ivy
+  I use Ivy, Counsel and Swiper to do things faster.
+  #+BEGIN_SRC emacs-lisp
+    ;; Since ivy and swiper are dependencies for counsel, thene I'll download counsel so it brings
+    ;; others as its dependencies.
+    (use-package counsel
+      :ensure t
+      :bind (("M-x" . 'counsel-M-x)
+             ("C-x C-f" . counsel-find-file)
+             ("C-h M-f" . counsel-describe-function)
+             ("C-h M-v" . counsel-describe-variable)
+             ("C-h M-s" . counsel-info-lookup-symbol)
+             ("C-x r b" . counsel-bookmark)
+             
+             ("M-y" . counsel-yank-pop)
+             ("C-c C-r" . ivy-resume)
+             ("C-S" . swiper))
+      :custom
+      (ivy-use-virtual-buffers t)
+      :config
+      (ivy-mode 1))
+
+    (use-package ivy-hydra
+      :ensure t
+      :after (counsel))
+
+    (use-package flyspell-correct-ivy
+      :ensure t
+      :after (counsel))
+
+     ;; I'll turn-on counsel-projectile-mode since I use counsel and projectile
+     (use-package counsel-projectile
+       :ensure t
+       :after (projectile counsel)
+       :config
+       (counsel-projectile-mode 1))
+  #+END_SRC
+* Company
+  I use company to auto-complete words, my setting will be to popup completion after 1 character
+  with delay 0.4 second and align popup window and last to use numbers to pick a completion from th 
+  popup window for quick access.
+  #+BEGIN_SRC emacs-lisp
+    (use-package company
+      :ensure t
+      :custom
+      (company-minimum-prefix-length 1)
+      (company-idle-delay 0.4)
+      (company-tooltip-align-annotations t)
+      (company-show-numbers t)
+      :config
+      (global-company-mode 1))
+  #+END_SRC
+* Yasnippet
+  I use yasnippet for common text such as license files and headers and other things.
+  #+BEGIN_SRC emacs-lisp
+    ;; Since yasnippet is a dependencie for yasnippet-snippets I install yasnippet-snippets directly.
+    (use-package yasnippet-snippets
+      :ensure t
+      :config
+      (yas-global-mode 1))
+  #+END_SRC
+* Highlight keywords & Colors
+  I use highlight-symbol to create functions that does highlight words such as TODO,
+  FIXME, BUG and other common keywords, so I can hook modes to call these functions when needed.
+  I also use rainbow-mode to highlight colors-name in buffer.
+  #+BEGIN_SRC emacs-lisp
+    (defun highlight-common-keywords ()
+      "Highlight keywords that I use most of the time"
+      (highlight-phrase '"\\b\\(TODO\\|FIXME\\|BUG\\):" 'org-todo))
+    (defun highlight-gettext-keywords ()
+      "Highlight keywords that are related to gettext library"
+      (highlight-phrase '"\\b\\TRANSLATORS:" 'org-todo))
+
+    (use-package rainbow-mode
+      :ensure t)
+  #+END_SRC
+* Eshell
+  Changeing the prompt, so I can get good alignment for prompt when I open directory with name in 
+  RTL language like Arabic directory 
+  TODO: add the name for last folder in the current path
+  #+BEGIN_SRC emacs-lisp
+    (setq eshell-prompt-function
+          (lambda()
+            (concat "[" (getenv "USER") "@" (getenv "HOSTNAME") "]" (if (= (user-uid) 0) "# " "$ "))))
+  #+END_SRC
+* Planning & Organizing
+  this section have configrations for packages that help organizing and planning in general
+** Org
+   I use Org to write most of my things such as my TODO, README files, presintions and others.
+*** Configration
+    In this section I configure Org to work with UTF-8 and RTL language (.e.g. Arabic) and I use 
+    org-bullets to make Org tree more clearer.
+    #+BEGIN_SRC emacs-lisp
+      ;; for right-to-left direction in org-mode
+      (defun set-bidi-env ()
+	"interactive"
+	(setq bidi-paragraph-direction 'nil))
+
+      (use-package org
+	:ensure t
+	:custom
+	(org-adapt-indentation t)
+	(org-columns-ellipses "…")
+	(org-from-is-user-regexp "\\<مهند\\>")
+	(org-hide-leading-stars t)
+	(org-pretty-entities t)
+	(org-todo-keywords '((sequence "TODO(t)" "LATER(l)" "|" "DONE(d)")
+			     (sequence "مُجَدْوَل(ج)" "مُؤَجَّل(ا)" "|" "مُنجَز(ن)")))
+	:hook (org-mode . set-bidi-env))
+
+      (use-package org-bullets
+	:ensure t
+	:hook (org-mode . org-bullets-mode))
+    #+END_SRC
+*** Export backend
+    Here is some packages that I use to extend Org Export methods.
+    list of export backends that I may use from time to time:
+    * Presintions
+      - Reveal (ox-reveal) TODO: I'll add it when I need it.
+      - Google I/O HTML5 slide (ox-ioslide)
+    * Text formats
+      - Github Flavored Markdown (ox-gfm)
+      - reStructuredText (ox-rst)
+      #+BEGIN_SRC emacs-lisp
+	(use-package ox-gfm :ensure t)
+	(use-package ox-rst :ensure t)
+	(use-package ox-ioslide :ensure t)
+      #+END_SRC
+** Magit
+   I use Magit to do my Git things, it's awesome and I still learning it with Git too.
+   #+BEGIN_SRC emacs-lisp
+     (use-package magit :ensure t)
+   #+END_SRC
+** projectile
+   I use projectile to track my VC projects easliy
+   #+BEGIN_SRC emacs-lisp
+     (use-package projectile :ensure t)
+   #+END_SRC
+** Undo Tree
+   I use undo tree to go back with the buffer history
+   #+BEGIN_SRC emacs-lisp
+     (use-package undo-tree
+       :ensure t
+       :config
+       (global-undo-tree-mode t))
+   #+END_SRC
+* Text
+** text-mode
+   here are some configration for the text-mode
+   #+BEGIN_SRC emacs-lisp
+     (use-package text-mode
+       :hook ((text-mode . rainbow-mode)
+	      (text-mode . highlight-common-keywords)))
+   #+END_SRC
+** expand-region
+   this package makes it easy to expand selected region.
+   #+BEGIN_SRC emacs-lisp
+     (use-package expand-region
+       :ensure t
+       :bind ("C-=" . er/expand-region))
+   #+END_SRC
+* Programming
+** prog-mode
+   Here is my common configration that I use in programming modes.
+   #+BEGIN_SRC emacs-lisp
+     (use-package whitespace-cleanup-mode
+       :ensure t)
+
+     (use-package rainbow-delimiters
+       :ensure t)
+
+     (use-package diff-hl
+       :ensure t)
+
+     (use-package prog-mode
+       :hook ((prog-mode . whitespace-cleanup-mode)
+              (prog-mode . (lambda () (setq truncate-lines t)))
+              (prog-mode . rainbow-mode)
+              (prog-mode . rainbow-delimiters-mode)
+              (prog-mode . diff-hl-mode)
+              (prog-mode . diff-hl-flydiff-mode)
+              (prog-mode . projectile-mode))
+       :after (whitespace-cleanup-mode rainbow-delimiters diff-hl projectile))
+   #+END_SRC
+** Rust
+   Here is my configration for rust-mode.
+   #+BEGIN_SRC emacs-lisp
+     (use-package racer
+       :ensure t
+       :after (company)
+       :hook ((racer-mode . eldoc-mode)
+	      (racer-mode . company-mode)))
+
+     (use-package cargo
+       :ensure t)
+
+     (use-package flycheck-rust
+       :ensure t
+       :hook (flycheck-mode . flycheck-rust-setup))
+
+     (use-package rust-mode
+       :ensure t
+       :hook ((rust-mode . racer-mode)
+	      (rust-mode . cargo-minor-mode)
+	      (rust-mode . flycheck-mode))
+       :bind (:map rust-mode-map
+		   ("TAB" . company-indent-or-complete-common)))
+   #+END_SRC
+** C
+   TODO: write configration for c-mode
+** Web
+   here is a simple configration for HTML and CSS file with web-mode and emmet-mode.
+   #+BEGIN_SRC emacs-lisp
+     (use-package emmet-mode
+       :ensure t
+       :hook web-mode
+       :after (web-mode))
+
+     (use-package web-mode
+       :ensure t
+       :mode ("\\.html\\'" "\\.css\\'")
+       :hook (web-mode . emmet-mode))
+   #+END_SRC
