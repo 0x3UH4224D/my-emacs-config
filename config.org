@@ -242,8 +242,17 @@ This is my Emacs configration file.
       #+END_SRC
 ** Magit
    I use Magit to do my Git things, it's awesome and I still learning it with Git too.
+   Note: there is an issue when using diff-hl-flydiff with magit check:
+   1. [[https://github.com/magit/magit/issues/3014][Unable to revert buffers with magit/diff-hl-flydiff-mode #3014]]
+   2. [[https://github.com/dgutov/diff-hl/issues/65][diff-hl + Magit == 'max-lisp-eval-depth' 'lisp nesting exceeds max-lisp-eval-depth {Mac OS X} #65]]
+   I use workaround mentioned by *YourFin* [[https://github.com/magit/magit/issues/3014#issuecomment-325849148][Here]]
    #+BEGIN_SRC emacs-lisp
-     (use-package magit :ensure t)
+     (use-package magit
+       :ensure t
+       :config
+       (magit-auto-revert-mode -1)
+       (global-auto-revert-mode -1)
+       (add-hook 'after-init-hook 'magit-file-mode-turn-on))
    #+END_SRC
 ** projectile
    I use projectile to track my VC projects easliy
