@@ -164,15 +164,22 @@ This is my Emacs configration file.
       :config
       (global-company-mode 1))
   #+END_SRC
-* Yasnippet
-  I use yasnippet for common text such as license files and headers and other things.
+* Undo Tree
+  I use undo tree to go back with the buffer history
   #+BEGIN_SRC emacs-lisp
-    ;; Since yasnippet is a dependencie for yasnippet-snippets I install yasnippet-snippets directly.
-    (use-package yasnippet-snippets
+    (use-package undo-tree
       :ensure t
       :config
-      (yas-global-mode 1))
-  #+END_SRC
+      (global-undo-tree-mode t))
+  #+END_SRC* Yasnippet
+ I use yasnippet for common text such as license files and headers and other things.
+ #+BEGIN_SRC emacs-lisp
+   ;; Since yasnippet is a dependencie for yasnippet-snippets I install yasnippet-snippets directly.
+   (use-package yasnippet-snippets
+     :ensure t
+     :config
+     (yas-global-mode 1))
+ #+END_SRC
 * Highlight keywords & Colors
   I use highlight-symbol to create functions that does highlight words such as TODO,
   FIXME, BUG and other common keywords, so I can hook modes to call these functions when needed.
@@ -199,6 +206,33 @@ This is my Emacs configration file.
   #+END_SRC
 * Planning & Organizing
   this section have configrations for packages that help organizing and planning in general
+** Magit
+   I use Magit to do my Git things, it's awesome and I still learning it with Git too.
+   Note: there is an issue when using diff-hl-flydiff with magit check:
+   1. [[https://github.com/magit/magit/issues/3014][Unable to revert buffers with magit/diff-hl-flydiff-mode #3014]]
+   2. [[https://github.com/dgutov/diff-hl/issues/65][diff-hl + Magit == 'max-lisp-eval-depth' 'lisp nesting exceeds max-lisp-eval-depth {Mac OS X} #65]]
+   I use workaround mentioned by *YourFin* [[https://github.com/magit/magit/issues/3014#issuecomment-325849148][Here]]
+   #+BEGIN_SRC emacs-lisp
+     (use-package magit
+       :ensure t
+       :config
+       (magit-auto-revert-mode -1)
+       (global-auto-revert-mode -1)
+       (add-hook 'after-init-hook 'magit-file-mode-turn-on))
+   #+END_SRC
+** projectile
+   I use projectile to track my VC projects easliy
+   #+BEGIN_SRC emacs-lisp
+     (use-package projectile :ensure t)
+   #+END_SRC
+* Text
+** text-mode
+   here are some configration for the text-mode
+   #+BEGIN_SRC emacs-lisp
+     (use-package text-mode
+       :hook ((text-mode . rainbow-mode)
+	      (text-mode . highlight-common-keywords)))
+   #+END_SRC
 ** Org
    I use Org to write most of my things such as my TODO, README files, presintions and others.
 *** Configration
@@ -219,7 +253,10 @@ This is my Emacs configration file.
 	(org-hide-leading-stars t)
 	(org-pretty-entities t)
 	(org-todo-keywords '((sequence "TODO(t)" "LATER(l)" "|" "DONE(d)")
-			     (sequence "مُجَدْوَل(ج)" "مُؤَجَّل(ا)" "|" "مُنجَز(ن)")))
+			     (sequence "مُجَدْوَل(T)"
+				       "مُؤَجَّل(L)"
+				       "|"
+				       "مُنجَز(D)")))
 	:hook (org-mode . set-bidi-env))
 
       (use-package org-bullets
@@ -240,40 +277,9 @@ This is my Emacs configration file.
 	(use-package ox-rst :ensure t)
 	(use-package ox-ioslide :ensure t)
       #+END_SRC
-** Magit
-   I use Magit to do my Git things, it's awesome and I still learning it with Git too.
-   Note: there is an issue when using diff-hl-flydiff with magit check:
-   1. [[https://github.com/magit/magit/issues/3014][Unable to revert buffers with magit/diff-hl-flydiff-mode #3014]]
-   2. [[https://github.com/dgutov/diff-hl/issues/65][diff-hl + Magit == 'max-lisp-eval-depth' 'lisp nesting exceeds max-lisp-eval-depth {Mac OS X} #65]]
-   I use workaround mentioned by *YourFin* [[https://github.com/magit/magit/issues/3014#issuecomment-325849148][Here]]
+** TODO reStructuredtext
    #+BEGIN_SRC emacs-lisp
-     (use-package magit
-       :ensure t
-       :config
-       (magit-auto-revert-mode -1)
-       (global-auto-revert-mode -1)
-       (add-hook 'after-init-hook 'magit-file-mode-turn-on))
-   #+END_SRC
-** projectile
-   I use projectile to track my VC projects easliy
-   #+BEGIN_SRC emacs-lisp
-     (use-package projectile :ensure t)
-   #+END_SRC
-** Undo Tree
-   I use undo tree to go back with the buffer history
-   #+BEGIN_SRC emacs-lisp
-     (use-package undo-tree
-       :ensure t
-       :config
-       (global-undo-tree-mode t))
-   #+END_SRC
-* Text
-** text-mode
-   here are some configration for the text-mode
-   #+BEGIN_SRC emacs-lisp
-     (use-package text-mode
-       :hook ((text-mode . rainbow-mode)
-	      (text-mode . highlight-common-keywords)))
+     ;; (use-package 
    #+END_SRC
 ** expand-region
    this package makes it easy to expand selected region.
