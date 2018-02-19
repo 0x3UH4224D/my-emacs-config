@@ -17,6 +17,11 @@ This is my Emacs configration file.
    #+BEGIN_SRC emacs-lisp
      (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
    #+END_SRC
+** Lines warping
+   I am not used to warp lines so I will disable this in emacs
+   #+BEGIN_SRC emacs-lisp
+     (set-default 'truncate-lines t)
+   #+END_SRC
 * Package sources
   add MELPA and Org package archives if theiy are not added
   #+BEGIN_SRC emacs-lisp
@@ -171,7 +176,8 @@ This is my Emacs configration file.
       :ensure t
       :config
       (global-undo-tree-mode t))
-  #+END_SRC* Yasnippet
+  #+END_SRC
+* Yasnippet
  I use yasnippet for common text such as license files and headers and other things.
  #+BEGIN_SRC emacs-lisp
    ;; Since yasnippet is a dependencie for yasnippet-snippets I install yasnippet-snippets directly.
@@ -262,6 +268,8 @@ This is my Emacs configration file.
       (use-package org-bullets
 	:ensure t
 	:hook (org-mode . org-bullets-mode))
+
+      (use-package htmlize :ensure t)
     #+END_SRC
 *** Export backend
     Here is some packages that I use to extend Org Export methods.
@@ -277,6 +285,19 @@ This is my Emacs configration file.
 	(use-package ox-rst :ensure t)
 	(use-package ox-ioslide :ensure t)
       #+END_SRC
+** Markdown
+   I use CommonMark for Markdown.
+   #+BEGIN_SRC emacs-lisp
+     (use-package edit-indirect
+       :ensure t)
+
+     (use-package markdown-mode
+       :ensure t
+       :mode (("README\\.md\\'" . gfm-mode)
+              ("\\.md\\'" . markdown-mode)
+              ("\\.markdown\\'" . markdown-mode))
+       :init (setq markdown-command "pulldown-cmark -T -F"))
+   #+END_SRC
 ** TODO reStructuredtext
    #+BEGIN_SRC emacs-lisp
      ;; (use-package 
@@ -306,10 +327,14 @@ This is my Emacs configration file.
               (prog-mode . (lambda () (setq truncate-lines t)))
               (prog-mode . rainbow-mode)
               (prog-mode . rainbow-delimiters-mode)
+              (prog-mode . highlight-common-keywords)
               (prog-mode . diff-hl-mode)
               (prog-mode . diff-hl-flydiff-mode)
-              (prog-mode . projectile-mode))
-       :after (whitespace-cleanup-mode rainbow-delimiters diff-hl projectile))
+              (prog-mode . projectile-mode)
+              (prog-mode . (lambda ()
+                             (setq-default indent-tabs-mode nil)
+                             (setq tab-width 4))))
+     :after (whitespace-cleanup-mode rainbow-delimiters diff-hl projectile))
    #+END_SRC
 ** Rust
    Here is my configration for rust-mode.
