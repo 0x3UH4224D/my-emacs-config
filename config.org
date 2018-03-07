@@ -4,24 +4,6 @@
 
 This is my Emacs configration file.
 
-* Emacs behavior
-  I manipulate some Emacs behavior to backup files and save-place and other things.
-** Save places
-   Tell Emacs to remember last corusr for files that I have visit.
-   #+BEGIN_SRC emacs-lisp
-     (save-place-mode t)
-   #+END_SRC
-** Backup files
-   emacs by default create backup files wnd with `~` character in the same folder for the file, and 
-   thats make things a bit missy, so I will keep these backup files in separate folder.
-   #+BEGIN_SRC emacs-lisp
-     (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
-   #+END_SRC
-** Lines warping
-   I am not used to warp lines so I will disable this in emacs
-   #+BEGIN_SRC emacs-lisp
-     (set-default 'truncate-lines t)
-   #+END_SRC
 * Package sources
   add MELPA and Org package archives if theiy are not added
   #+BEGIN_SRC emacs-lisp
@@ -46,6 +28,20 @@ This is my Emacs configration file.
      (eval-when-compile
        (require 'use-package))
      (setq use-package-verbose t)
+   #+END_SRC
+* Emacs behavior
+  I manipulate some Emacs behavior to backup files and save-place and other things.
+** Better Defaults
+   saves the location, indent-tabs-mode off, ..etc
+   #+BEGIN_SRC emacs-lisp
+     (use-package better-defaults
+       :ensure t
+       :demand t)
+   #+END_SRC
+** Lines warping
+   I am not used to warp lines so I will disable this in emacs
+   #+BEGIN_SRC emacs-lisp
+     (set-default 'truncate-lines t)
    #+END_SRC
 * My functions
   here are my functions that I use in sevral places
@@ -96,8 +92,7 @@ This is my Emacs configration file.
 
      (use-package dracula-theme
        :ensure t
-       :config
-       (load-theme 'dracula t))
+       :custom (load-theme 'dracula t))
    #+END_SRC
 ** Layout
    I need clean UI for programming so I'll hide menu-bar, tool-bar and scroll-bar and I'll use 
@@ -107,10 +102,10 @@ This is my Emacs configration file.
      (tool-bar-mode -1)
      (scroll-bar-mode -1)
 
-     (use-package golden-ratio
-       :ensure t
-       :config
-       (golden-ratio-mode 1))
+     ;; (use-package golden-ratio
+     ;;   :ensure t
+     ;;   :config
+     ;;   (golden-ratio-mode 1))
    #+END_SRC
 ** Highlight current line
    this section to highlight current line
@@ -124,20 +119,19 @@ This is my Emacs configration file.
     ;; others as its dependencies.
     (use-package counsel
       :ensure t
+      :demand t
       :bind (("M-x" . 'counsel-M-x)
              ("C-x C-f" . counsel-find-file)
              ("C-h M-f" . counsel-describe-function)
              ("C-h M-v" . counsel-describe-variable)
              ("C-h M-s" . counsel-info-lookup-symbol)
              ("C-x r b" . counsel-bookmark)
-             
+
              ("M-y" . counsel-yank-pop)
              ("C-c C-r" . ivy-resume)
              ("C-S" . swiper))
-      :custom
-      (ivy-use-virtual-buffers t)
-      :config
-      (ivy-mode 1))
+      :custom (ivy-use-virtual-buffers t)
+      :config (ivy-mode 1))
 
     (use-package ivy-hydra
       :ensure t
@@ -151,8 +145,7 @@ This is my Emacs configration file.
      (use-package counsel-projectile
        :ensure t
        :after (projectile counsel)
-       :config
-       (counsel-projectile-mode 1))
+       :config (counsel-projectile-mode 1))
   #+END_SRC
 * Company
   I use company to auto-complete words, my setting will be to popup completion after 1 character
@@ -169,11 +162,19 @@ This is my Emacs configration file.
       :config
       (global-company-mode 1))
   #+END_SRC
+* Auto-Complete
+  #+BEGIN_SRC emacs-lisp
+    ;; (use-package auto-complete
+    ;;   :ensure t
+    ;;   :init (ac-config-default)
+    ;;   :config (setq ac-show-menu-immediately-on-auto-complete t))
+  #+END_SRC
 * Undo Tree
   I use undo tree to go back with the buffer history
   #+BEGIN_SRC emacs-lisp
     (use-package undo-tree
       :ensure t
+      :demand t
       :config
       (global-undo-tree-mode t))
   #+END_SRC
@@ -206,9 +207,9 @@ This is my Emacs configration file.
   RTL language like Arabic directory 
   TODO: add the name for last folder in the current path
   #+BEGIN_SRC emacs-lisp
-    (setq eshell-prompt-function
-          (lambda()
-            (concat "[" (getenv "USER") "@" (getenv "HOSTNAME") "]" (if (= (user-uid) 0) "# " "$ "))))
+    ;; (setq eshell-prompt-function
+    ;;       (lambda()
+    ;;         (concat "[" (getenv "USER") "@" (getenv "HOSTNAME") "]" (if (= (user-uid) 0) "# " "$ "))))
   #+END_SRC
 * Planning & Organizing
   this section have configrations for packages that help organizing and planning in general
@@ -229,7 +230,9 @@ This is my Emacs configration file.
 ** projectile
    I use projectile to track my VC projects easliy
    #+BEGIN_SRC emacs-lisp
-     (use-package projectile :ensure t)
+     (use-package projectile
+       :ensure t
+       :demand t)
    #+END_SRC
 * Text
 ** text-mode
@@ -302,6 +305,12 @@ This is my Emacs configration file.
    #+BEGIN_SRC emacs-lisp
      ;; (use-package 
    #+END_SRC
+** Yaml
+   #+BEGIN_SRC emacs-lisp
+     (use-package yaml-mode
+       :ensure t
+       :mode ("\\.yml\\'"))
+   #+END_SRC
 ** expand-region
    this package makes it easy to expand selected region.
    #+BEGIN_SRC emacs-lisp
@@ -332,7 +341,6 @@ This is my Emacs configration file.
               (prog-mode . diff-hl-flydiff-mode)
               (prog-mode . projectile-mode)
               (prog-mode . (lambda ()
-                             (setq-default indent-tabs-mode nil)
                              (setq tab-width 4))))
      :after (whitespace-cleanup-mode rainbow-delimiters diff-hl projectile))
    #+END_SRC
@@ -360,10 +368,40 @@ This is my Emacs configration file.
        :bind (:map rust-mode-map
 		   ("TAB" . company-indent-or-complete-common)))
    #+END_SRC
+** Python
+   Using elpy, flycheck, autopep8 to get fully IDE for python
+   For more info visit: https://realpython.com/blog/python/emacs-the-best-python-editor/
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package company-jedi
+     ;;   :ensure t
+     ;;   :custom ((add-to-list 'company-backends 'company-jedi)
+     ;;            (add-to-list 'company-backends '(company-jedi company-files))))
+
+     ;; (use-package jedi
+     ;;   :ensure t
+     ;;   :init (add-to-list 'ac-sources 'ac-source-jedi-direct)
+     ;;   :hook (python-mode . jedi:setup))
+
+     (use-package flycheck
+       :ensure t)
+
+     (use-package py-autopep8
+       :ensure t)
+
+     (use-package elpy
+       :ensure t
+       :config
+       (elpy-enable)
+       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+       :hook ((python-mode . elpy-mode)
+              (elpy-mode . flycheck-mode)
+              (elpy-mode . py-autopep8-enable-on-save)))
+   #+END_SRC
 ** C
    TODO: write configration for c-mode
 ** Web
    here is a simple configration for HTML and CSS file with web-mode and emmet-mode.
+   TODO: install restclient.el
    #+BEGIN_SRC emacs-lisp
      (use-package emmet-mode
        :ensure t
@@ -372,6 +410,14 @@ This is my Emacs configration file.
 
      (use-package web-mode
        :ensure t
-       :mode ("\\.html\\'" "\\.css\\'")
+       :mode ("\\.html\\'" "\\.css\\'" "\\.php\\'" "\\.inc\\'")
        :hook (web-mode . emmet-mode))
+
+     (use-package company-php
+       :ensure t
+       :config
+       (add-to-list 'company-backends 'company-ac-php-backend))
+
+     (use-package php-mode
+       :ensure t)
    #+END_SRC
