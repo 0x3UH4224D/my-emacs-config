@@ -416,8 +416,18 @@ This is my Emacs configration file.
      (use-package company-php
        :ensure t
        :config
+       (ac-php-core-eldoc-setup)
+       (make-local-variable 'company-backends)
        (add-to-list 'company-backends 'company-ac-php-backend))
 
      (use-package php-mode
        :ensure t)
    #+END_SRC
+* Database
+** General
+*** sqlup-mode
+    #+BEGIN_SRC emacs-lisp
+      (use-package sqlup-mode
+        :ensure t
+        :hook (sql-mode . sqlup-mode))
+    #+END_SRC
