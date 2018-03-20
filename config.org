@@ -43,6 +43,14 @@ This is my Emacs configration file.
    #+BEGIN_SRC emacs-lisp
      (set-default 'truncate-lines t)
    #+END_SRC
+** Password caching
+   #+BEGIN_SRC emacs-lisp
+     (require 'em-tramp)
+     (setq eshell-prefer-lisp-functions t)
+     (setq eshell-prefer-lisp-variables t)
+     (setq password-cache t)
+     (setq password-cache-expiry 3600)
+   #+END_SRC
 * My functions
   here are my functions that I use in sevral places
   #+BEGIN_SRC emacs-lisp
