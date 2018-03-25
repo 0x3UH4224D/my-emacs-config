@@ -326,6 +326,11 @@ This is my Emacs configration file.
        :ensure t
        :bind ("C-=" . er/expand-region))
    #+END_SRC
+* Regular Expression
+  #+BEGIN_SRC emacs-lisp
+    (use-package regex-tool
+      :ensure t)
+  #+END_SRC
 * Programming
 ** prog-mode
    Here is my common configration that I use in programming modes.
@@ -408,7 +413,7 @@ This is my Emacs configration file.
 ** C
    TODO: write configration for c-mode
 ** Web
-   here is a simple configration for HTML and CSS file with web-mode and emmet-mode.
+   here is a simple configration for HTML, CSS and PHP
    TODO: install restclient.el
    #+BEGIN_SRC emacs-lisp
      (use-package emmet-mode
@@ -419,14 +424,17 @@ This is my Emacs configration file.
      (use-package web-mode
        :ensure t
        :mode ("\\.html\\'" "\\.css\\'" "\\.php\\'" "\\.inc\\'")
-       :hook (web-mode . emmet-mode))
+       :hook ((web-mode . emmet-mode)
+              (web-mode . (lambda ()
+                            (ac-php-core-eldoc-setup)
+                            (make-local-variable 'company-backends)
+                            (add-to-list 'company-backends '(company-ac-php-backend company-dabbrev))))))
 
      (use-package company-php
-       :ensure t
-       :config
-       (ac-php-core-eldoc-setup)
-       (make-local-variable 'company-backends)
-       (add-to-list 'company-backends 'company-ac-php-backend))
+       :ensure t)
+
+     (use-package php-eldoc
+       :ensure t)
 
      (use-package php-mode
        :ensure t)
