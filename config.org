@@ -423,7 +423,12 @@ This is my Emacs configration file.
 
      (use-package web-mode
        :ensure t
-       :mode ("\\.html\\'" "\\.css\\'" "\\.php\\'" "\\.inc\\'")
+       :mode ("\\.html\\'"
+              "\\.css\\'"
+              "\\.php\\'"
+              "\\.inc\\'"
+              "\\.hbs\\'"
+              "\\.tera\\'")
        :hook ((web-mode . emmet-mode)
               (web-mode . (lambda ()
                             (ac-php-core-eldoc-setup)
